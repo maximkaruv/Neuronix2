@@ -1,0 +1,3 @@
+
+def vectorizate(text):
+    pass
