@@ -1,13 +1,14 @@
-from fastapi import APIRouter
-from modules.storage.manager import Storage
+from core.storage.manager import Storage
 
-router = APIRouter()
-storage = Storage()
+storage = Storage(dimension=1536)
 
-@router.get('/docs')
-async def get_docs():
-    return storage.get_docs()
+print("Добавляем документы")
+storage.push_docs(["Текст 1 про AI.", "Текст 2 про RAG."])
+print("Сохраняем базу данных")
+storage.save()
+print("Ищем")
+results = storage.search("Что такое RAG?", count=1)
+print(results)
+print("Документы в базе:", storage.get_docs())
 
-@router.patch('/docs')
-async def edit_docs(req):
-    pass
+# python -m modules.storage.py
