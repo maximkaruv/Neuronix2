@@ -1,5 +1,8 @@
+import sys, os
+sys.pycache_prefix = os.path.join(os.getcwd(), "pycache")
+
 from fastapi import FastAPI
-from routes import ask, store
+from modules import ask, store
 
 app = FastAPI()
 

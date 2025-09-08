@@ -1,3 +1,5 @@
 rag-venv
 data/*
 config.py
+__pycache__
+*.pyc

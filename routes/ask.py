@@ -1,5 +1,8 @@
-from core.storage.manager import Storage
+from fastapi import APIRouter
+from core.storage.storage_manager import Storage
 from core.models.generator import Generator
+
+router = APIRouter()
 
 storage = Storage()
 generator = Generator()
@@ -14,8 +17,9 @@ MESSAGE = """Ты - поисковый помощник моей компани�
 {blocks}
 ---"""
 
-def ask(query):
+@router.post('/ask')
+async def ask(query):
     matches = storage.search(query, count=5)
     blocks = [BLOCK.format(content=block.content, source=block.source) for block in matches]
-    answer = prompt(MESSAGE.format(matches='\n---\n'.join(blocks)))
+    answer = generator.prompt(MESSAGE.format(matches='\n---\n'.join(blocks)))
     return answer
