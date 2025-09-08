@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from modules.storage import Storage
+from modules.storage.manager import Storage
 
 router = APIRouter()
 storage = Storage()

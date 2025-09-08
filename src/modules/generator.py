@@ -1,3 +1,0 @@
-
-def prompt(query):
-    pass

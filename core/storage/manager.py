@@ -1,5 +1,5 @@
-from modules.core.embeddings import vectorizate
-from modules.core.vectorbase import VectorBase
+from core.models.embeddings import Embeddings
+from core.storage.vectorbase import VectorBase
 
 class Storage:
     def __init__(
