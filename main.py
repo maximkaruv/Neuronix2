@@ -4,12 +4,12 @@ sys.pycache_prefix = os.path.join(os.getcwd(), "__pycache__")
 from fastapi import FastAPI
 import uvicorn
 import routes.ask as ask
-import routes.storage as storage
+import routes.documents as documents
 
 app = FastAPI()
 
 app.include_router(ask.router, prefix='/api')
-app.include_router(storage.router, prefix='/api')
+app.include_router(documents.router, prefix='/api')
 
 @app.get('/')
 async def ping():

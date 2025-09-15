@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from core.storage.storage_manager import Storage
-from core.models.generator import Generator
 from pydantic import BaseModel
+from core.storage import Storage
+from core.generator.openai_generator import Generator
 
 router = APIRouter()
 

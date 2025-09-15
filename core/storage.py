@@ -1,8 +1,8 @@
 import faiss
 import numpy as np
 from openai import OpenAIError
-from core.models.embeddings import Embeddings
-from core.storage.vectorbase import VectorBase
+from .embeddings.openai_embeddings import Embeddings
+from .vectorstore.faiss_base import VectorBase
 from typing import List, Optional
 
 class Storage:

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from core.storage.storage_manager import Storage
+from core.storage import Storage
 
 router = APIRouter()
 storage = Storage(dimension=1536)
