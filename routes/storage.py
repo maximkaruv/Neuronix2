@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from core.storage.storage_manager import Storage
 
 router = APIRouter()
-storage = Storage(dimension=45)
+storage = Storage(dimension=1536)
 
 class DocumentCreate(BaseModel):
     documents: list[str]

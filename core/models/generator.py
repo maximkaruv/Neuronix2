@@ -2,7 +2,7 @@ from openai import OpenAI
 from config import openai_model
 
 class Generator:
-    def __init__(self, api_key, base_url):
+    def __init__(self):
         self.client = OpenAI(
             api_key=openai_model['api_key'],
             base_url=openai_model['base_url']

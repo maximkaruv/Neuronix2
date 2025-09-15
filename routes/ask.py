@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from core.storage.storage_manager import Storage
 from core.models.generator import Generator
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -17,9 +18,12 @@ MESSAGE = """Ты - поисковый помощник моей компани�
 {blocks}
 ---"""
 
+class AskRequest(BaseModel):
+    query: str
+
 @router.post('/ask')
-async def ask(query):
-    matches = storage.search(query, count=5)
+async def ask(req: AskRequest):
+    matches = storage.search(req.query, count=5)
     blocks = [BLOCK.format(content=block.content, source=block.source) for block in matches]
     answer = generator.prompt(MESSAGE.format(matches='\n---\n'.join(blocks)))
     return answer

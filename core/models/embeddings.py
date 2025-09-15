@@ -8,7 +8,7 @@ class Embeddings:
             base_url=openai_model['base_url']
         )
     
-    def vectorizate(self, text, verbose=True):
+    def vectorizate(self, text, dimension=None, verbose=True):
         try:
             res = self.client.embeddings.create(
                 model="text-embedding-3-small",

@@ -1,0 +1,5 @@
+PUT http://localhost:8000/api/documents/1
+
+{
+    "document": "Нет"
+}
