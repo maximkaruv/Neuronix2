@@ -1,6 +1,6 @@
 import os
 
-def print_tree(start_path=".", prefix=""):
+def print_tree(start_path="..", prefix=""):
     items = sorted(os.listdir(start_path))
     for index, item in enumerate(items):
         if item == "__pycache__" or item == ".git":

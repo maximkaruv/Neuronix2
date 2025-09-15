@@ -1,9 +1,9 @@
+from loguru import logger
 import faiss
 import numpy as np
 from openai import OpenAIError
 from .embeddings.openai_embeddings import Embeddings
 from .vectorstore.faiss_base import VectorBase
-from typing import List, Optional
 
 class Storage:
     def __init__(
@@ -18,22 +18,25 @@ class Storage:
         self.docs_file = docs_file
         self.embedding_model = Embeddings()
     
+    # Загружает базы из путей
     def load(self) -> VectorBase:
         try:
             self.database = VectorBase.load(self.dimension, self.vectors_file, self.docs_file)
             return self.database
         except FileNotFoundError as e:
-            print(f"Ошибка загрузки: {e}. Создаётся новая база.")
+            logger.error(f"Ошибка загрузки: {e}. Создаем новую базу")
             self.database = VectorBase(self.dimension)
             return self.database
     
+    # Сохраняем базу по путям
     def save(self):
         self.database.save(self.vectors_file, self.docs_file)
+        logger.success("База сохранена")
 
-    def push_docs(self, docs: List[str]) -> List[int]:
-        """Добавляет документы и возвращает их индексы."""
+    # Добавляет документы и возвращает их индексы
+    def push_docs(self, docs: list[str]) -> list[int]:
         if not docs:
-            print("Предупреждение: Список документов пуст.")
+            logger.warning("Список документов пуст.")
             return []
         try:
             embeddings_list = self.embedding_model.vectorizate(docs, dimension=self.dimension)
@@ -43,14 +46,14 @@ class Storage:
             self.database.add_embeddings_docs(embeddings_list, docs)
             return list(range(start_idx, start_idx + len(docs)))
         except OpenAIError as e:
-            print(f"Ошибка OpenAI API: {e}")
+            logger.error(f"Ошибка OpenAI-API: {e}")
             return []
         except Exception as e:
-            print(f"Ошибка при добавлении документов: {e}")
+            logger.error(f"Ошибка при добавлении документов: {e}")
             return []
 
-    def search(self, query: str, count: int) -> List[str]:
-        """Ищет документы по запросу."""
+    # Ищет документы по запросу
+    def search(self, query: str, count: int) -> list[str]:
         try:
             embeddings = self.embedding_model.vectorizate(query, dimension=self.dimension)
             embeddings = np.array(embeddings).astype('float32')
@@ -58,26 +61,26 @@ class Storage:
                 raise ValueError(f"Эмбеддинг запроса имеет размерность {len(embeddings)}, ожидается {self.dimension}")
             return self.database.search_neighbours(embeddings, count)
         except OpenAIError as e:
-            print(f"Ошибка OpenAI API: {e}")
+            logger.error(f"Ошибка OpenAI-API: {e}")
             return []
         except Exception as e:
-            print(f"Ошибка при поиске: {e}")
+            logger.error(f"Ошибка при поиске: {e}")
             return []
 
-    def get_docs(self) -> List[str]:
-        """Возвращает все документы."""
+    # Возвращает все документы
+    def get_docs(self) -> list[str]:
         return self.database.documents
 
-    def get_doc_by_id(self, doc_id: int) -> Optional[str]:
-        """Возвращает документ по индексу."""
+    # Возвращает документ по индексу
+    def get_doc_by_id(self, doc_id: int) -> dict:
         if 0 <= doc_id < len(self.database.documents):
             return self.database.documents[doc_id]
         return None
 
+    # Обновляет документ по индексу
     def update_doc(self, doc_id: int, new_doc: str) -> bool:
-        """Обновляет документ по индексу."""
         if not (0 <= doc_id < len(self.database.documents)):
-            print(f"Ошибка: Документ с индексом {doc_id} не существует.")
+            logger.warning(f"Документ с индексом {doc_id} не существует.")
             return False
         try:
             embedding = self.embedding_model.vectorizate(new_doc, dimension=self.dimension)
@@ -91,16 +94,16 @@ class Storage:
             self._rebuild_index()
             return True
         except OpenAIError as e:
-            print(f"Ошибка OpenAI API: {e}")
+            logger.error(f"Ошибка OpenAI-API: {e}")
             return False
         except Exception as e:
-            print(f"Ошибка при обновлении документа: {e}")
+            logger.error(f"Ошибка при обновлении документа: {e}")
             return False
 
+    # Удаляет документ по индексу
     def delete_doc(self, doc_id: int) -> bool:
-        """Удаляет документ по индексу."""
         if not (0 <= doc_id < len(self.database.documents)):
-            print(f"Ошибка: Документ с индексом {doc_id} не существует.")
+            logger.error(f"Документ с индексом {doc_id} не существует.")
             return False
         try:
             self.database.documents.pop(doc_id)
@@ -108,11 +111,11 @@ class Storage:
             self._rebuild_index()
             return True
         except Exception as e:
-            print(f"Ошибка при удалении документа: {e}")
+            logger.error(f"Ошибка при удалении документа: {e}")
             return False
 
+    # Пересоздаёт FAISS индекс на основе текущих документов
     def _rebuild_index(self):
-        """Пересоздаёт FAISS индекс на основе текущих документов."""
         try:
             embeddings_list = self.embedding_model.vectorizate(self.database.documents, dimension=self.dimension)
             self.database.index = faiss.IndexFlatL2(self.dimension)
@@ -123,8 +126,8 @@ class Storage:
                 embeddings_np = embeddings_np / norms
                 self.database.index.add(embeddings_np)
         except OpenAIError as e:
-            print(f"Ошибка OpenAI API при пересоздании индекса: {e}")
+            logger.error(f"Ошибка OpenAI-API при пересоздании индекса: {e}")
             raise
         except Exception as e:
-            print(f"Ошибка при пересоздании индекса: {e}")
+            logger.error(f"Ошибка при пересоздании индекса: {e}")
             raise

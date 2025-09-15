@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from core.storage import Storage
 from core.generator.openai_generator import Generator
@@ -23,7 +23,10 @@ class AskRequest(BaseModel):
 
 @router.post('/ask')
 async def ask(req: AskRequest):
-    matches = storage.search(req.query, count=5)
-    blocks = [BLOCK.format(content=block.content, source=block.source) for block in matches]
-    answer = generator.prompt(MESSAGE.format(matches='\n---\n'.join(blocks)))
-    return answer
+    try:
+        matches = storage.search(req.query, count=5)
+        blocks = [BLOCK.format(content=block.content, source=block.source) for block in matches]
+        answer = generator.prompt(MESSAGE.format(matches='\n---\n'.join(blocks)))
+        return answer
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Ошибка умного поиска")
